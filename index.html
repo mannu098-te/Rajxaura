@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>R4J KEY GENERATOR — Sequential Verification & Key Portal</title>
+
+  <!-- Google Fonts: Inter, Orbitron & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Orbitron', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            void: '#0b0d12',
+            neonCyan: '#00f5d4',
+            neonMagenta: '#ff2a85',
+          },
+          animation: {
+            'float': 'float 5s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-7px)' },
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* Base dark glassmorphic canvas & ambient RGB glow */
+    body {
+      background-color: #0b0d12;
+      color: #f3f4f6;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 15% 12%, rgba(0, 245, 212, 0.13) 0%, transparent 42%),
+        radial-gradient(circle at 85% 20%, rgba(255, 42, 133, 0.13) 0%, transparent 42%),
+        radial-gradient(circle at 50% 92%, rgba(0, 245, 212, 0.06) 0%, transparent 52%);
+    }
+
+    /* Subtle cyber grid background */
+    .cyber-grid {
+      background-size: 36px 36px;
+      background-image:
+        linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    }
+
+    /* Rotating RGB border ring for the circular R4J emblem */
+    .rgb-ring {
+      background: conic-gradient(from 0deg, #00f5d4, #ff2a85, #7b2cbf, #00f5d4);
+      animation: spin 5.5s linear infinite;
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Frosted glass card */
+    .glass-panel {
+      background: rgba(16, 20, 30, 0.76);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(0, 245, 212, 0.06) inset;
+    }
+
+    /* Unconditional portal screen visibility rules */
+    .portal-screen {
+      display: none;
+    }
+
+    .portal-screen.active {
+      display: block;
+      animation: portalFadeIn 0.26s ease-out forwards;
+    }
+
+    @keyframes portalFadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Key reveal animation */
+    @keyframes keyPop {
+      0% {
+        opacity: 0.35;
+        transform: scale(0.97);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .key-reveal {
+      animation: keyPop 0.3s ease-out forwards;
+    }
+
+    /* Shake animation for incomplete steps */
+    @keyframes shakeItem {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+
+    .shake-item {
+      animation: shakeItem 0.42s ease-in-out;
+    }
+  </style>
+</head>
+<body class="cyber-grid flex flex-col justify-between antialiased selection:bg-neonCyan selection:text-void">
+
+  <!-- Toast Notification Banner -->
+  <div
+    id="toast"
+    role="status"
+    aria-live="polite"
+    class="fixed bottom-5 right-5 z-50 max-w-xs sm:max-w-sm transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none"
+  >
+    <div class="glass-panel border-neonCyan/50 rounded-2xl px-4 py-3.5 flex items-center gap-3 shadow-2xl">
+      <div id="toast-icon-wrap" class="w-8 h-8 rounded-xl bg-neonCyan/15 border border-neonCyan/40 text-neonCyan flex items-center justify-center shrink-0">
+        <!-- Check SVG -->
+        <svg id="toast-icon-check" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <!-- Warning SVG -->
+        <svg id="toast-icon-warn" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <div class="min-w-0">
+        <p id="toast-title" class="text-xs sm:text-sm font-bold text-white truncate">Success</p>
+        <p id="toast-desc" class="text-xs text-gray-300 truncate">Action completed</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="w-full max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-grow flex flex-col justify-center space-y-6">
+
+    <!-- Top-Right Subtle Credit Pill Badge -->
+    <div class="flex justify-end">
+      <div
+        aria-label="Creat by mannu bhai"
+        class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-panel border-neonCyan/30 text-[11px] font-medium tracking-wide text-gray-300 select-none"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-neonMagenta shadow-[0_0_6px_rgba(255,42,133,0.9)] shrink-0"></span>
+        <span>Creat by mannu bhai</span>
+      </div>
+    </div>
+
+    <!-- Brand Header & Circular RGB R4J Emblem -->
+    <header class="text-center relative">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-60 rounded-full bg-gradient-to-tr from-neonCyan/20 via-transparent to-neonMagenta/20 blur-3xl -z-10"></div>
+
+      <div class="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-4 animate-float">
+        <div class="w-full h-full rounded-full rgb-ring p-[3.5px] shadow-[0_0_28px_rgba(0,245,212,0.3),0_0_28px_rgba(255,42,133,0.22)]">
+          <div class="w-full h-full rounded-full bg-[#0b0d12] flex items-center justify-center">
+            <div class="w-[88%] h-[88%] rounded-full bg-gradient-to-b from-[#161c2a] to-[#0c0f17] border border-white/10 flex flex-col items-center justify-center">
+              <!-- Key Emblem SVG -->
+              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-neonCyan mb-0.5 drop-shadow-[0_0_8px_rgba(0,245,212,0.85)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="7.5" cy="15.5" r="5.5"></circle>
+                <path d="M21 2l-9.6 9.6"></path>
+                <path d="M15.5 7.5l3 3L22 7l-3-3"></path>
+              </svg>
+              <span class="font-display font-black text-xs sm:text-sm tracking-widest text-white">R4J</span>
+              <span class="text-[7px] font-bold tracking-[0.2em] text-neonMagenta uppercase">PORTAL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h1 class="font-display text-2xl sm:text-4xl font-black tracking-wider leading-tight">
+        <span class="bg-gradient-to-r from-white via-neonCyan to-neonMagenta bg-clip-text text-transparent">
+          R4J KEY GENERATOR
+        </span>
+      </h1>
+      <p id="stage-subtitle" class="mt-1.5 text-xs sm:text-sm text-gray-400">
+        1. Account — Create Account or Login with Gmail
+      </p>
+    </header>
+
+    <!-- Top 6-Step Pill Bar & Quick Testing Controls -->
+    <section aria-label="6-Step Portal Navigation" class="glass-panel rounded-2xl p-4 sm:p-5 space-y-3.5">
+      <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="w-2.5 h-2.5 rounded-full bg-neonCyan shadow-[0_0_8px_rgba(0,245,212,0.9)] shrink-0"></span>
+          <span id="session-status-text" class="text-gray-300 truncate">
+            Guest Mode — Create Account or Login to start
+          </span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
+          <button
+            id="demo-quick-fill-btn"
+            type="button"
+            onclick="handleDemoQuickFill()"
+            class="px-2.5 py-1.5 rounded-xl text-[11px] font-display font-bold uppercase tracking-wider text-neonCyan bg-neonCyan/10 hover:bg-neonCyan/20 border border-neonCyan/40 transition-all cursor-pointer"
+          >
+            Demo / Quick Fill
+          </button>
+
+          <button
+            id="reset-progress-btn"
+            type="button"
+            onclick="handleResetProgress()"
+            class="px-2.5 py-1.5 rounded-xl text-[11px] font-display font-bold uppercase tracking-wider text-gray-200 bg-white/5 hover:bg-white/10 border border-white/15 hover:border-neonCyan/40 transition-all cursor-pointer"
+          >
+            Reset
+          </button>
+
+          <button
+            id="sign-out-btn"
+            type="button"
+            onclick="handleSignOut()"
+            class="px-2.5 py-1.5 rounded-xl text-[11px] font-display font-bold uppercase tracking-wider text-white bg-neonMagenta/15 hover:bg-neonMagenta/25 border border-neonMagenta/45 transition-all cursor-pointer"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+
+      <!-- 6-Step Pill Buttons -->
+      <div class="grid grid-cols-2 sm:grid-cols-6 gap-1.5 sm:gap-2">
+        <button
+          id="pill-portal-auth"
+          type="button"
+          onclick="handlePillClick('portal-auth')"
+          class="py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center"
+        >
+          <span class="font-display text-[10px] font-bold leading-tight">1. Account</span>
+          <span id="pill-badge-portal-auth" class="text-[9px] font-semibold mt-0.5">Active</span>
+        </button>
+
+        <button
+          id="pill-portal-2a"
+          type="button"
+          onclick="handlePillClick('portal-2a')"
+          class="py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center"
+        >
+          <span class="font-display text-[10px] font-bold leading-tight">2. YouTube + Quiz</span>
+          <span id="pill-badge-portal-2a" class="text-[9px] font-semibold mt-0.5">Locked</span>
+        </button>
+
+        <button
+          id="pill-portal-2b"
+          type="button"
+          onclick="handlePillClick('portal-2b')"
+          class="py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center"
+        >
+          <span class="font-display text-[10px] font-bold leading-tight">3. Telegram + Quiz</span>
+          <span id="pill-badge-portal-2b" class="text-[9px] font-semibold mt-0.5">Locked</span>
+        </button>
+
+        <button
+          id="pill-portal-2c"
+          type="button"
+          onclick="handlePillClick('portal-2c')"
+          class="py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center"
+        >
+          <span class="font-display text-[10px] font-bold leading-tight">4. Instagram + Quiz</span>
+          <span id="pill-badge-portal-2c" class="text-[9px] font-semibold mt-0.5">Locked</span>
+        </button>
+
+        <button
+          id="pill-portal-link"
+          type="button"
+          onclick="handlePillClick('portal-link')"
+          class="py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center"
+        >
+          <span class="font-display text-[10px] font-bold leading-tight">5. Your Link</span>
+          <span id="pill-badge-portal-link" class="text-[9px] font-semibold mt-0.5">Locked</span>
+        </button>
+
+        <button
+          id="pill-portal-key"
+          type="button"
+          onclick="handlePillClick('portal-key')"
+          class="py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center"
+        >
+          <span class="font-display text-[10px] font-bold leading-tight">6. Key Generator</span>
+          <span id="pill-badge-portal-key" class="text-[9px] font-semibold mt-0.5">Locked</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PORTAL 1: ACCOUNT (CREATE ACCOUNT & LOGIN)                            -->
+    <!-- ===================================================================== -->
+    <section id="portal-auth" aria-label="Portal 1 Account Create and Login" class="portal-screen active glass-panel rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-neonCyan via-neonMagenta to-neonCyan"></div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-5">
+        <div>
+          <span class="text-[11px] font-display font-bold uppercase tracking-widest text-neonCyan">Step 1 • Account Portal</span>
+          <h2 class="font-display text-lg sm:text-xl font-bold text-white mt-0.5">Create Account or Login</h2>
+        </div>
+        <span class="px-3 py-1 rounded-full text-[11px] font-semibold bg-neonCyan/10 text-neonCyan border border-neonCyan/30">
+          Opens YouTube Portal Next
+        </span>
+      </div>
+
+      <!-- Mode Switcher Tabs -->
+      <div role="tablist" aria-label="Account Authentication Tabs" class="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-[#07090d]/90 border border-white/10 mb-6">
+        <button
+          id="tab-signup"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          onclick="switchAuthTab('signup')"
+          class="py-2.5 px-3 rounded-xl font-display text-xs sm:text-sm font-bold uppercase tracking-wider transition-all cursor-pointer bg-gradient-to-r from-neonMagenta/25 to-neonMagenta/10 text-neonMagenta border border-neonMagenta/45 shadow-[0_0_16px_rgba(255,42,133,0.18)]"
+        >
+          Create Account
+        </button>
+
+        <button
+          id="tab-login"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          onclick="switchAuthTab('login')"
+          class="py-2.5 px-3 rounded-xl font-display text-xs sm:text-sm font-bold uppercase tracking-wider transition-all cursor-pointer text-gray-400 hover:text-white border border-transparent"
+        >
+          Login
+        </button>
+      </div>
+
+      <!-- CREATE ACCOUNT FORM -->
+      <form id="create-account-form" novalidate onsubmit="onCreateAccountSubmit(event)" class="space-y-4">
+        <div>
+          <label for="ca-name" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+            Full Name
+          </label>
+          <input
+            id="ca-name"
+            type="text"
+            autocomplete="name"
+            placeholder="Enter your name (e.g. R4J Player)"
+            oninput="clearFieldError('ca-name', 'ca-name-err')"
+            class="w-full px-4 py-3 rounded-xl bg-[#07090d]/90 border border-white/15 focus:border-neonMagenta focus:outline-none text-sm text-white placeholder-gray-500 transition-colors"
+          />
+          <p id="ca-name-err" class="hidden mt-1.5 text-xs text-red-400"></p>
+        </div>
+
+        <div>
+          <label for="ca-gmail" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+            Gmail Address
+          </label>
+          <input
+            id="ca-gmail"
+            type="email"
+            autocomplete="email"
+            placeholder="yourname@gmail.com"
+            oninput="clearFieldError('ca-gmail', 'ca-gmail-err')"
+            class="w-full px-4 py-3 rounded-xl bg-[#07090d]/90 border border-white/15 focus:border-neonMagenta focus:outline-none text-sm text-white placeholder-gray-500 transition-colors"
+          />
+          <p id="ca-gmail-err" class="hidden mt-1.5 text-xs text-red-400"></p>
+        </div>
+
+        <div>
+          <label for="ca-password" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+            Password
+          </label>
+          <div class="relative">
+            <input
+              id="ca-password"
+              type="password"
+              autocomplete="new-password"
+              placeholder="Create a password (min 4 chars)"
+              oninput="updatePasswordStrengthBar(); clearFieldError('ca-password', 'ca-password-err')"
+              class="w-full pl-4 pr-12 py-3 rounded-xl bg-[#07090d]/90 border border-white/15 focus:border-neonMagenta focus:outline-none text-sm text-white placeholder-gray-500 transition-colors"
+            />
+            <button
+              type="button"
+              aria-label="Toggle create account password"
+              onclick="togglePwdVisibility('ca-password', 'ca-eye-open', 'ca-eye-closed')"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-neonMagenta transition-colors cursor-pointer"
+            >
+              <svg id="ca-eye-open" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg id="ca-eye-closed" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- 4-Bar Strength Meter -->
+          <div class="mt-2.5">
+            <div class="flex items-center justify-between text-[11px] mb-1">
+              <span class="text-gray-400">Password Strength</span>
+              <span id="ca-strength-label" class="font-semibold text-gray-500">Enter password</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5 h-1.5">
+              <div id="ca-bar-1" class="rounded-full bg-white/10 transition-all"></div>
+              <div id="ca-bar-2" class="rounded-full bg-white/10 transition-all"></div>
+              <div id="ca-bar-3" class="rounded-full bg-white/10 transition-all"></div>
+              <div id="ca-bar-4" class="rounded-full bg-white/10 transition-all"></div>
+            </div>
+          </div>
+          <p id="ca-password-err" class="hidden mt-1.5 text-xs text-red-400"></p>
+        </div>
+
+        <button
+          id="create-account-submit-btn"
+          type="submit"
+          class="w-full mt-2 py-3.5 px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-white bg-gradient-to-r from-neonMagenta to-[#ff5e9e] hover:brightness-110 active:scale-[0.99] transition-all shadow-[0_0_24px_rgba(255,42,133,0.35)] flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Create Account &amp; Open YouTube Portal</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </form>
+
+      <!-- LOGIN FORM -->
+      <form id="login-account-form" novalidate onsubmit="onLoginSubmit(event)" class="hidden space-y-4">
+        <div>
+          <label for="lg-gmail" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+            Gmail Address
+          </label>
+          <input
+            id="lg-gmail"
+            type="email"
+            autocomplete="email"
+            placeholder="yourname@gmail.com"
+            oninput="clearFieldError('lg-gmail', 'lg-gmail-err')"
+            class="w-full px-4 py-3 rounded-xl bg-[#07090d]/90 border border-white/15 focus:border-neonCyan focus:outline-none text-sm text-white placeholder-gray-500 transition-colors"
+          />
+          <p id="lg-gmail-err" class="hidden mt-1.5 text-xs text-red-400"></p>
+        </div>
+
+        <div>
+          <label for="lg-password" class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+            Password
+          </label>
+          <div class="relative">
+            <input
+              id="lg-password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Enter your password"
+              oninput="clearFieldError('lg-password', 'lg-password-err')"
+              class="w-full pl-4 pr-12 py-3 rounded-xl bg-[#07090d]/90 border border-white/15 focus:border-neonCyan focus:outline-none text-sm text-white placeholder-gray-500 transition-colors"
+            />
+            <button
+              type="button"
+              aria-label="Toggle login password"
+              onclick="togglePwdVisibility('lg-password', 'lg-eye-open', 'lg-eye-closed')"
+              class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-neonCyan transition-colors cursor-pointer"
+            >
+              <svg id="lg-eye-open" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <svg id="lg-eye-closed" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            </button>
+          </div>
+          <p id="lg-password-err" class="hidden mt-1.5 text-xs text-red-400"></p>
+        </div>
+
+        <button
+          id="login-submit-btn"
+          type="submit"
+          class="w-full mt-2 py-3.5 px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-void bg-gradient-to-r from-neonCyan to-[#38f9d7] hover:brightness-110 active:scale-[0.99] transition-all shadow-[0_0_24px_rgba(0,245,212,0.35)] flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Login &amp; Open YouTube Portal</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PORTAL 2A: YOUTUBE CHANNEL + ADDITION QUIZ                            -->
+    <!-- ===================================================================== -->
+    <section id="portal-2a" aria-label="Portal 2A YouTube and Addition Quiz" class="portal-screen glass-panel rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#FF0033] via-neonCyan to-neonMagenta"></div>
+
+      <div class="space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-[11px] font-display font-bold uppercase tracking-widest text-neonCyan">Step 2 • YouTube Portal</span>
+            <h2 class="font-display text-lg sm:text-xl font-bold text-white mt-0.5">YouTube Subscribe + Addition Quiz</h2>
+          </div>
+          <span id="status-badge-2a" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-400/35">
+            0/2 Complete
+          </span>
+        </div>
+
+        <!-- YouTube Channel Card -->
+        <div id="card-2a-social" class="rounded-2xl bg-[#07090d]/85 border border-white/10 p-4 sm:p-5 space-y-3.5 transition-all">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-11 h-11 rounded-xl bg-[#FF0033]/15 border border-[#FF0033]/40 text-[#ff4d6d] flex items-center justify-center shrink-0">
+                <!-- Inline YouTube SVG -->
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-bold text-white truncate">Subscribe @r4jytofficial12</p>
+                <p class="text-xs text-gray-400 truncate">youtube.com/@r4jytofficial12</p>
+              </div>
+            </div>
+
+            <a
+              href="https://youtube.com/@r4jytofficial12?si=FZDzkXyapLskXL9W"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-4 py-2.5 rounded-xl text-xs font-display font-bold uppercase tracking-wider text-white bg-[#FF0033]/20 hover:bg-[#FF0033]/35 border border-[#FF0033]/50 transition-all flex items-center justify-center gap-2 shrink-0"
+            >
+              <span>Visit YouTube</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+          </div>
+
+          <div class="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+            <span class="text-xs text-gray-300">Did you subscribe to the channel?</span>
+            <button
+              id="verify-btn-2a"
+              type="button"
+              onclick="toggleStepVerify('2a')"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all cursor-pointer bg-white/5 text-gray-300 border-white/15 hover:border-neonCyan/45"
+            >
+              Verify Subscribe
+            </button>
+          </div>
+        </div>
+
+        <!-- Addition Quiz Card -->
+        <div id="card-2a-quiz" class="rounded-2xl bg-[#07090d]/85 border border-white/10 p-4 sm:p-5 space-y-3.5 transition-all">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-display font-bold uppercase tracking-wider text-neonCyan">Math Addition Quiz</span>
+            <span id="quiz-badge-2a" class="text-xs font-semibold text-amber-300">Pending</span>
+          </div>
+
+          <p class="text-sm sm:text-base font-bold text-white">
+            What is <span class="font-mono text-neonCyan">14 + 29</span>?
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <input
+              id="quiz-input-2a"
+              type="number"
+              inputmode="numeric"
+              placeholder="Enter answer"
+              oninput="onQuizInput('2a')"
+              class="flex-1 px-4 py-2.5 rounded-xl bg-[#0b0d12] border border-white/15 focus:border-neonCyan focus:outline-none text-sm font-mono text-white placeholder-gray-500 transition-colors"
+            />
+            <button
+              type="button"
+              onclick="checkQuizAnswer('2a', 43)"
+              class="px-4 py-2.5 rounded-xl font-display text-xs font-bold uppercase tracking-wider text-void bg-neonCyan hover:brightness-110 transition-all cursor-pointer shrink-0"
+            >
+              Verify Quiz
+            </button>
+          </div>
+          <p id="quiz-msg-2a" class="hidden text-xs font-semibold"></p>
+        </div>
+
+        <!-- Hinglish Warning Banner -->
+        <div id="warn-2a" role="alert" class="hidden rounded-2xl bg-neonMagenta/15 border border-neonMagenta/50 p-4 text-xs sm:text-sm font-semibold text-white"></div>
+
+        <!-- Next Button -->
+        <button
+          type="button"
+          onclick="goNextFrom('2a', 'portal-2b')"
+          class="w-full py-3.5 px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-void bg-gradient-to-r from-neonCyan to-[#38f9d7] hover:brightness-110 active:scale-[0.99] transition-all shadow-[0_0_24px_rgba(0,245,212,0.35)] flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Next -&gt; Telegram Portal</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PORTAL 2B: TELEGRAM CHANNEL + MULTIPLICATION QUIZ                     -->
+    <!-- ===================================================================== -->
+    <section id="portal-2b" aria-label="Portal 2B Telegram and Multiplication Quiz" class="portal-screen glass-panel rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#2AABEE] via-neonCyan to-neonMagenta"></div>
+
+      <div class="space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-[11px] font-display font-bold uppercase tracking-widest text-neonCyan">Step 3 • Telegram Portal</span>
+            <h2 class="font-display text-lg sm:text-xl font-bold text-white mt-0.5">Telegram Join + Multiplication Quiz</h2>
+          </div>
+          <span id="status-badge-2b" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-400/35">
+            0/2 Complete
+          </span>
+        </div>
+
+        <!-- Telegram Channel Card -->
+        <div id="card-2b-social" class="rounded-2xl bg-[#07090d]/85 border border-white/10 p-4 sm:p-5 space-y-3.5 transition-all">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-11 h-11 rounded-xl bg-[#2AABEE]/15 border border-[#2AABEE]/40 text-[#38bdf8] flex items-center justify-center shrink-0">
+                <!-- Inline Telegram SVG -->
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-bold text-white truncate">Join R4J Telegram Channel</p>
+                <p class="text-xs text-gray-400 truncate">t.me/+N2B5qGgol-lhYTI1</p>
+              </div>
+            </div>
+
+            <a
+              href="https://t.me/+N2B5qGgol-lhYTI1"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-4 py-2.5 rounded-xl text-xs font-display font-bold uppercase tracking-wider text-white bg-[#2AABEE]/20 hover:bg-[#2AABEE]/35 border border-[#2AABEE]/50 transition-all flex items-center justify-center gap-2 shrink-0"
+            >
+              <span>Join Telegram</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+          </div>
+
+          <div class="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+            <span class="text-xs text-gray-300">Did you join the Telegram channel?</span>
+            <button
+              id="verify-btn-2b"
+              type="button"
+              onclick="toggleStepVerify('2b')"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all cursor-pointer bg-white/5 text-gray-300 border-white/15 hover:border-neonCyan/45"
+            >
+              Verify Join
+            </button>
+          </div>
+        </div>
+
+        <!-- Multiplication Quiz Card -->
+        <div id="card-2b-quiz" class="rounded-2xl bg-[#07090d]/85 border border-white/10 p-4 sm:p-5 space-y-3.5 transition-all">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-display font-bold uppercase tracking-wider text-neonCyan">Math Multiplication Quiz</span>
+            <span id="quiz-badge-2b" class="text-xs font-semibold text-amber-300">Pending</span>
+          </div>
+
+          <p class="text-sm sm:text-base font-bold text-white">
+            What is <span class="font-mono text-neonCyan">8 × 7</span>?
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <input
+              id="quiz-input-2b"
+              type="number"
+              inputmode="numeric"
+              placeholder="Enter answer"
+              oninput="onQuizInput('2b')"
+              class="flex-1 px-4 py-2.5 rounded-xl bg-[#0b0d12] border border-white/15 focus:border-neonCyan focus:outline-none text-sm font-mono text-white placeholder-gray-500 transition-colors"
+            />
+            <button
+              type="button"
+              onclick="checkQuizAnswer('2b', 56)"
+              class="px-4 py-2.5 rounded-xl font-display text-xs font-bold uppercase tracking-wider text-void bg-neonCyan hover:brightness-110 transition-all cursor-pointer shrink-0"
+            >
+              Verify Quiz
+            </button>
+          </div>
+          <p id="quiz-msg-2b" class="hidden text-xs font-semibold"></p>
+        </div>
+
+        <!-- Hinglish Warning Banner -->
+        <div id="warn-2b" role="alert" class="hidden rounded-2xl bg-neonMagenta/15 border border-neonMagenta/50 p-4 text-xs sm:text-sm font-semibold text-white"></div>
+
+        <!-- Next Button -->
+        <button
+          type="button"
+          onclick="goNextFrom('2b', 'portal-2c')"
+          class="w-full py-3.5 px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-void bg-gradient-to-r from-neonCyan to-[#38f9d7] hover:brightness-110 active:scale-[0.99] transition-all shadow-[0_0_24px_rgba(0,245,212,0.35)] flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Next -&gt; Instagram Portal</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PORTAL 2C: INSTAGRAM PROFILE + MIXED MATH QUIZ                        -->
+    <!-- ===================================================================== -->
+    <section id="portal-2c" aria-label="Portal 2C Instagram and Mixed Math Quiz" class="portal-screen glass-panel rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#E1306C] via-neonMagenta to-neonCyan"></div>
+
+      <div class="space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-[11px] font-display font-bold uppercase tracking-widest text-neonMagenta">Step 4 • Instagram Portal</span>
+            <h2 class="font-display text-lg sm:text-xl font-bold text-white mt-0.5">Instagram Follow + Mixed Quiz</h2>
+          </div>
+          <span id="status-badge-2c" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-400/35">
+            0/2 Complete
+          </span>
+        </div>
+
+        <!-- Instagram Card -->
+        <div id="card-2c-social" class="rounded-2xl bg-[#07090d]/85 border border-white/10 p-4 sm:p-5 space-y-3.5 transition-all">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-11 h-11 rounded-xl bg-[#E1306C]/15 border border-[#E1306C]/40 text-[#ff5e9e] flex items-center justify-center shrink-0">
+                <!-- Inline Instagram SVG -->
+                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-bold text-white truncate">Follow @manauwar09</p>
+                <p class="text-xs text-gray-400 truncate">instagram.com/manauwar09</p>
+              </div>
+            </div>
+
+            <a
+              href="https://instagram.com/manauwar09"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="px-4 py-2.5 rounded-xl text-xs font-display font-bold uppercase tracking-wider text-white bg-[#E1306C]/20 hover:bg-[#E1306C]/35 border border-[#E1306C]/50 transition-all flex items-center justify-center gap-2 shrink-0"
+            >
+              <span>Follow @manauwar09</span>
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+          </div>
+
+          <div class="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+            <span class="text-xs text-gray-300">Did you follow @manauwar09?</span>
+            <button
+              id="verify-btn-2c"
+              type="button"
+              onclick="toggleStepVerify('2c')"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all cursor-pointer bg-white/5 text-gray-300 border-white/15 hover:border-neonMagenta/45"
+            >
+              Verify Follow
+            </button>
+          </div>
+        </div>
+
+        <!-- Mixed Quiz Card -->
+        <div id="card-2c-quiz" class="rounded-2xl bg-[#07090d]/85 border border-white/10 p-4 sm:p-5 space-y-3.5 transition-all">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-xs font-display font-bold uppercase tracking-wider text-neonMagenta">Mixed Math Quiz</span>
+            <span id="quiz-badge-2c" class="text-xs font-semibold text-amber-300">Pending</span>
+          </div>
+
+          <p class="text-sm sm:text-base font-bold text-white">
+            What is <span class="font-mono text-neonMagenta">45 - 18 + 6</span>?
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <input
+              id="quiz-input-2c"
+              type="number"
+              inputmode="numeric"
+              placeholder="Enter answer"
+              oninput="onQuizInput('2c')"
+              class="flex-1 px-4 py-2.5 rounded-xl bg-[#0b0d12] border border-white/15 focus:border-neonMagenta focus:outline-none text-sm font-mono text-white placeholder-gray-500 transition-colors"
+            />
+            <button
+              type="button"
+              onclick="checkQuizAnswer('2c', 33)"
+              class="px-4 py-2.5 rounded-xl font-display text-xs font-bold uppercase tracking-wider text-white bg-neonMagenta hover:brightness-110 transition-all cursor-pointer shrink-0"
+            >
+              Verify Quiz
+            </button>
+          </div>
+          <p id="quiz-msg-2c" class="hidden text-xs font-semibold"></p>
+        </div>
+
+        <!-- Hinglish Warning Banner -->
+        <div id="warn-2c" role="alert" class="hidden rounded-2xl bg-neonMagenta/15 border border-neonMagenta/50 p-4 text-xs sm:text-sm font-semibold text-white"></div>
+
+        <!-- Next Button -->
+        <button
+          type="button"
+          onclick="goNextFrom('2c', 'portal-link')"
+          class="w-full py-3.5 px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-white bg-gradient-to-r from-neonMagenta to-[#ff5e9e] hover:brightness-110 active:scale-[0.99] transition-all shadow-[0_0_24px_rgba(255,42,133,0.35)] flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Next -&gt; Your Link</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PORTAL 4: YOUR LINK PORTAL                                            -->
+    <!-- ===================================================================== -->
+    <section id="portal-link" aria-label="Portal 4 Your Link" class="portal-screen glass-panel rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-neonCyan via-neonMagenta to-neonCyan"></div>
+
+      <div class="space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-[11px] font-display font-bold uppercase tracking-widest text-neonCyan">Step 5 • Link Verification</span>
+            <h2 class="font-display text-lg sm:text-xl font-bold text-white mt-0.5">YOUR LINK</h2>
+          </div>
+          <span id="status-badge-link" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-400/35">
+            Pending
+          </span>
+        </div>
+
+        <div id="card-your-link" class="rounded-2xl bg-[#07090d]/85 border border-white/10 p-4 sm:p-5 space-y-4 transition-all">
+          <p class="text-xs sm:text-sm text-gray-300">
+            Open, copy, or verify your destination link below to unlock the Key Generator.
+          </p>
+
+          <div class="rounded-xl bg-[#0b0d12] border border-white/15 px-4 py-3 flex items-center justify-between gap-2">
+            <span id="your-link-display" class="font-mono text-xs sm:text-sm text-neonCyan truncate select-all">
+              https://r4j-portal.example/your-link
+            </span>
+            <span id="your-link-state-tag" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-white/10 text-gray-300 shrink-0">
+              Unverified
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <button
+              type="button"
+              onclick="openYourLink()"
+              class="py-2.5 px-3.5 rounded-xl font-display text-xs font-bold uppercase tracking-wider text-void bg-neonCyan hover:brightness-110 transition-all cursor-pointer"
+            >
+              Open Link
+            </button>
+
+            <button
+              type="button"
+              onclick="copyYourLink()"
+              class="py-2.5 px-3.5 rounded-xl font-display text-xs font-bold uppercase tracking-wider text-white bg-white/10 hover:bg-white/15 border border-white/15 transition-all cursor-pointer"
+            >
+              Copy Link
+            </button>
+
+            <button
+              type="button"
+              onclick="verifyYourLink()"
+              class="py-2.5 px-3.5 rounded-xl font-display text-xs font-bold uppercase tracking-wider text-white bg-neonMagenta/20 hover:bg-neonMagenta/30 border border-neonMagenta/45 transition-all cursor-pointer"
+            >
+              Verify Link
+            </button>
+          </div>
+        </div>
+
+        <!-- Hinglish Warning Banner -->
+        <div id="warn-link" role="alert" class="hidden rounded-2xl bg-neonMagenta/15 border border-neonMagenta/50 p-4 text-xs sm:text-sm font-semibold text-white"></div>
+
+        <!-- Next Button -->
+        <button
+          type="button"
+          onclick="goNextFromLink()"
+          class="w-full py-3.5 px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-white bg-gradient-to-r from-neonMagenta to-[#ff5e9e] hover:brightness-110 active:scale-[0.99] transition-all shadow-[0_0_24px_rgba(255,42,133,0.35)] flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>Next -&gt; Key Generator</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- PORTAL 5: FINAL KEY GENERATOR                                         -->
+    <!-- ===================================================================== -->
+    <section id="portal-key" aria-label="Portal 5 Final Key Generator" class="portal-screen glass-panel rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-neonCyan via-neonMagenta to-neonCyan"></div>
+
+      <div class="space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-[11px] font-display font-bold uppercase tracking-widest text-neonCyan">Step 6 • Key Portal</span>
+            <h2 class="font-display text-lg sm:text-xl font-bold text-white mt-0.5">R4J Key Generator</h2>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-400/15 text-emerald-300 border border-emerald-400/40">
+            Ready
+          </span>
+        </div>
+
+        <!-- Account Summary Pill -->
+        <div class="rounded-2xl bg-[#07090d]/85 border border-white/10 px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span class="text-gray-400">Active Account:</span>
+          <span id="key-account-email" class="font-mono font-bold text-neonCyan">guest@gmail.com</span>
+        </div>
+
+        <!-- Key Output Box -->
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">
+            Generated Key
+          </label>
+          <div
+            id="key-output-box"
+            class="min-h-[70px] rounded-2xl bg-[#07090d]/95 border border-white/15 px-4 py-4 flex items-center justify-center text-center transition-all"
+          >
+            <span id="key-idle-label" class="text-xs sm:text-sm text-gray-500">
+              Click GENERATE KEY to load your key
+            </span>
+
+            <span id="key-loading-label" class="hidden items-center gap-2.5 text-xs sm:text-sm font-semibold text-neonCyan">
+              <span class="w-4 h-4 rounded-full border-2 border-neonCyan border-t-transparent animate-spin"></span>
+              <span>Generating key (1.2s)...</span>
+            </span>
+
+            <span id="key-value-label" class="hidden font-mono font-bold text-lg sm:text-2xl tracking-wider text-neonCyan drop-shadow-[0_0_12px_rgba(0,245,212,0.65)]">
+              [RAJ-MANNU-B4H-65]
+            </span>
+          </div>
+        </div>
+
+        <!-- GENERATE KEY & COPY KEY Buttons -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <button
+            id="btn-generate-key"
+            type="button"
+            onclick="generateExactKey()"
+            class="py-3.5 px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-void bg-gradient-to-r from-neonCyan to-[#38f9d7] hover:brightness-110 active:scale-[0.99] transition-all shadow-[0_0_24px_rgba(0,245,212,0.35)] flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>GENERATE KEY</span>
+          </button>
+
+          <button
+            id="btn-copy-key"
+            type="button"
+            disabled
+            onclick="copyExactKey()"
+            class="py-3.5 px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-white bg-white/5 border border-white/15 opacity-50 cursor-not-allowed transition-all flex items-center justify-center gap-2"
+          >
+            <span>COPY KEY</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 bg-[#080a0f]/80 py-4 px-4 text-center text-xs text-gray-500">
+    <p class="font-display font-semibold text-gray-400">R4J KEY GENERATOR</p>
+  </footer>
+
+  <script>
+    // Constants
+    const EXACT_KEY = '[RAJ-MANNU-B4H-65]';
+    const YOUR_LINK_URL = 'https://r4j-portal.example/your-link';
+    const STORAGE_KEY_USERS = 'r4j_portal_users_v2';
+    const STORAGE_KEY_SESSION = 'r4j_portal_session_v2';
+    const PORTAL_IDS = ['portal-auth', 'portal-2a', 'portal-2b', 'portal-2c', 'portal-link', 'portal-key'];
+
+    // Safe in-memory fallback store so storage NEVER throws even in restricted webviews/iframes
+    const memoryStore = {};
+
+    function safeRead(key) {
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          const val = window.localStorage.getItem(key);
+          if (val !== null) return val;
+        }
+      } catch (e) {
+        // Fallback to memoryStore
+      }
+      return Object.prototype.hasOwnProperty.call(memoryStore, key) ? memoryStore[key] : null;
+    }
+
+    function safeWrite(key, value) {
+      memoryStore[key] = value;
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.setItem(key, value);
+        }
+      } catch (e) {
+        // Fallback to memoryStore already succeeded
+      }
+    }
+
+    function safeRemove(key) {
+      delete memoryStore[key];
+      try {
+        if (typeof window !== 'undefined' && window.localStorage) {
+          window.localStorage.removeItem(key);
+        }
+      } catch (e) {
+        // Ignore storage restrictions
+      }
+    }
+
+    // Application state
+    function getDefaultState() {
+      return {
+        currentPortal: 'portal-auth',
+        authTab: 'signup',
+        account: null, // { name, gmail }
+        steps: {
+          '2a': { verified: false, quizPassed: false, quizVal: '' },
+          '2b': { verified: false, quizPassed: false, quizVal: '' },
+          '2c': { verified: false, quizPassed: false, quizVal: '' },
+        },
+        linkVerified: false,
+        keyReady: false,
+      };
+    }
+
+    let appState = getDefaultState();
+    let isKeyLoading = false;
+    let keyTimer = null;
+    let toastTimer = null;
+
+    function loadAccountsList() {
+      try {
+        const raw = safeRead(STORAGE_KEY_USERS);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveAccountsList(list) {
+      safeWrite(STORAGE_KEY_USERS, JSON.stringify(list));
+    }
+
+    function persistSession() {
+      safeWrite(STORAGE_KEY_SESSION, JSON.stringify(appState));
+    }
+
+    function hydrateSession() {
+      try {
+        const raw = safeRead(STORAGE_KEY_SESSION);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        const base = getDefaultState();
+        appState = {
+          ...base,
+          ...parsed,
+          steps: {
+            '2a': { ...base.steps['2a'], ...(parsed.steps && parsed.steps['2a']) },
+            '2b': { ...base.steps['2b'], ...(parsed.steps && parsed.steps['2b']) },
+            '2c': { ...base.steps['2c'], ...(parsed.steps && parsed.steps['2c']) },
+          },
+        };
+        if (!PORTAL_IDS.includes(appState.currentPortal)) {
+          appState.currentPortal = 'portal-auth';
+        }
+      } catch (e) {
+        appState = getDefaultState();
+      }
+    }
+
+    /**
+     * Unconditional multi-view switcher that directly toggles `.portal-screen` and `.active`
+     * by element ID and refreshes the 6-step pill bar.
+     */
+    function showPortal(stageId) {
+      if (!PORTAL_IDS.includes(stageId)) {
+        stageId = 'portal-auth';
+      }
+
+      appState.currentPortal = stageId;
+      persistSession();
+
+      PORTAL_IDS.forEach((id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (id === stageId) {
+          el.classList.remove('active');
+          void el.offsetWidth;
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+
+      syncAllUI();
+    }
+
+    function canAccessPortal(stageId) {
+      const hasAccount = Boolean(appState.account && appState.account.gmail);
+      const done2a = appState.steps['2a'].verified && appState.steps['2a'].quizPassed;
+      const done2b = appState.steps['2b'].verified && appState.steps['2b'].quizPassed;
+      const done2c = appState.steps['2c'].verified && appState.steps['2c'].quizPassed;
+      const doneLink = Boolean(appState.linkVerified);
+
+      switch (stageId) {
+        case 'portal-auth':
+          return true;
+        case 'portal-2a':
+          return hasAccount;
+        case 'portal-2b':
+          return hasAccount && done2a;
+        case 'portal-2c':
+          return hasAccount && done2a && done2b;
+        case 'portal-link':
+          return hasAccount && done2a && done2b && done2c;
+        case 'portal-key':
+          return hasAccount && done2a && done2b && done2c && doneLink;
+        default:
+          return false;
+      }
+    }
+
+    function handlePillClick(stageId) {
+      if (!canAccessPortal(stageId)) {
+        showToast('Step Locked', 'Pehle pichla step complete karo ya Demo / Quick Fill dabao!', 'magenta');
+        return;
+      }
+      showPortal(stageId);
+    }
+
+    function switchAuthTab(mode) {
+      appState.authTab = mode === 'login' ? 'login' : 'signup';
+      persistSession();
+
+      const tabSignup = document.getElementById('tab-signup');
+      const tabLogin = document.getElementById('tab-login');
+      const formSignup = document.getElementById('create-account-form');
+      const formLogin = document.getElementById('login-account-form');
+
+      if (appState.authTab === 'signup') {
+        tabSignup.setAttribute('aria-selected', 'true');
+        tabLogin.setAttribute('aria-selected', 'false');
+        tabSignup.className =
+          'py-2.5 px-3 rounded-xl font-display text-xs sm:text-sm font-bold uppercase tracking-wider transition-all cursor-pointer bg-gradient-to-r from-neonMagenta/25 to-neonMagenta/10 text-neonMagenta border border-neonMagenta/45 shadow-[0_0_16px_rgba(255,42,133,0.18)]';
+        tabLogin.className =
+          'py-2.5 px-3 rounded-xl font-display text-xs sm:text-sm font-bold uppercase tracking-wider transition-all cursor-pointer text-gray-400 hover:text-white border border-transparent';
+
+        formLogin.classList.add('hidden');
+        formSignup.classList.remove('hidden');
+      } else {
+        tabLogin.setAttribute('aria-selected', 'true');
+        tabSignup.setAttribute('aria-selected', 'false');
+        tabLogin.className =
+          'py-2.5 px-3 rounded-xl font-display text-xs sm:text-sm font-bold uppercase tracking-wider transition-all cursor-pointer bg-gradient-to-r from-neonCyan/25 to-neonCyan/10 text-neonCyan border border-neonCyan/45 shadow-[0_0_16px_rgba(0,245,212,0.18)]';
+        tabSignup.className =
+          'py-2.5 px-3 rounded-xl font-display text-xs sm:text-sm font-bold uppercase tracking-wider transition-all cursor-pointer text-gray-400 hover:text-white border border-transparent';
+
+        formSignup.classList.add('hidden');
+        formLogin.classList.remove('hidden');
+      }
+    }
+
+    function togglePwdVisibility(inputId, openIconId, closedIconId) {
+      const input = document.getElementById(inputId);
+      const openIcon = document.getElementById(openIconId);
+      const closedIcon = document.getElementById(closedIconId);
+      if (!input || !openIcon || !closedIcon) return;
+
+      const isPwd = input.type === 'password';
+      input.type = isPwd ? 'text' : 'password';
+      openIcon.classList.toggle('hidden', isPwd);
+      closedIcon.classList.toggle('hidden', !isPwd);
+    }
+
+    function updatePasswordStrengthBar() {
+      const val = document.getElementById('ca-password').value || '';
+      const label = document.getElementById('ca-strength-label');
+      const bars = [
+        document.getElementById('ca-bar-1'),
+        document.getElementById('ca-bar-2'),
+        document.getElementById('ca-bar-3'),
+        document.getElementById('ca-bar-4'),
+      ];
+
+      let score = 0;
+      if (val.length >= 4) score++;
+      if (val.length >= 7) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val) || /[A-Z]/.test(val)) score++;
+
+      const levels = [
+        { text: 'Enter password', cls: 'text-gray-500', color: 'bg-white/10' },
+        { text: 'Weak', cls: 'text-red-400', color: 'bg-red-500' },
+        { text: 'Fair', cls: 'text-amber-400', color: 'bg-amber-400' },
+        { text: 'Good', cls: 'text-neonCyan', color: 'bg-neonCyan' },
+        { text: 'Strong', cls: 'text-emerald-400', color: 'bg-emerald-400' },
+      ];
+
+      const idx = val.length === 0 ? 0 : Math.max(1, score);
+      label.textContent = levels[idx].text;
+      label.className = `font-semibold ${levels[idx].cls}`;
+
+      bars.forEach((b, i) => {
+        b.className = 'rounded-full transition-all ' + (i < idx && val.length > 0 ? levels[idx].color : 'bg-white/10');
+      });
+    }
+
+    function setFieldError(inputId, errId, message) {
+      const input = document.getElementById(inputId);
+      const err = document.getElementById(errId);
+      if (input) {
+        input.classList.remove('border-white/15', 'focus:border-neonCyan', 'focus:border-neonMagenta');
+        input.classList.add('border-red-500/80');
+      }
+      if (err) {
+        err.textContent = message;
+        err.classList.remove('hidden');
+      }
+    }
+
+    function clearFieldError(inputId, errId) {
+      const input = document.getElementById(inputId);
+      const err = document.getElementById(errId);
+      if (input) {
+        input.classList.remove('border-red-500/80');
+        input.classList.add('border-white/15');
+      }
+      if (err) {
+        err.textContent = '';
+        err.classList.add('hidden');
+      }
+    }
+
+    function isGmailAddress(email) {
+      return /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(email.trim());
+    }
+
+    /**
+     * Saves account & session safely and IMMEDIATELY switches to `portal-2a`.
+     */
+    function onCreateAccountSubmit(event) {
+      event.preventDefault();
+
+      const nameEl = document.getElementById('ca-name');
+      const gmailEl = document.getElementById('ca-gmail');
+      const pwdEl = document.getElementById('ca-password');
+
+      const name = nameEl.value.trim();
+      const gmail = gmailEl.value.trim().toLowerCase();
+      const password = pwdEl.value;
+
+      let ok = true;
+
+      if (name.length < 2) {
+        setFieldError('ca-name', 'ca-name-err', 'Please enter your name (at least 2 characters).');
+        ok = false;
+      }
+
+      if (!isGmailAddress(gmail)) {
+        setFieldError('ca-gmail', 'ca-gmail-err', 'Please enter a valid @gmail.com address.');
+        ok = false;
+      }
+
+      if (password.length < 4) {
+        setFieldError('ca-password', 'ca-password-err', 'Password must be at least 4 characters.');
+        ok = false;
+      }
+
+      if (!ok) {
+        showToast('Check Details', 'Name, valid @gmail.com, and password are required.', 'magenta');
+        return;
+      }
+
+      const users = loadAccountsList();
+      const existingIdx = users.findIndex((u) => u.gmail === gmail);
+      if (existingIdx >= 0) {
+        users[existingIdx] = { name, gmail, password };
+      } else {
+        users.push({ name, gmail, password });
+      }
+      saveAccountsList(users);
+
+      appState.account = { name, gmail };
+      persistSession();
+
+      nameEl.value = '';
+      gmailEl.value = '';
+      pwdEl.value = '';
+      updatePasswordStrengthBar();
+
+      showPortal('portal-2a');
+      showToast('Account Created!', `Welcome ${gmail} — YouTube Portal unlocked.`, 'cyan');
+    }
+
+    /**
+     * Logs in user (creates session if matching account exists or logs in cleanly) and IMMEDIATELY switches to `portal-2a`.
+     */
+    function onLoginSubmit(event) {
+      event.preventDefault();
+
+      const gmailEl = document.getElementById('lg-gmail');
+      const pwdEl = document.getElementById('lg-password');
+
+      const gmail = gmailEl.value.trim().toLowerCase();
+      const password = pwdEl.value;
+
+      let ok = true;
+
+      if (!isGmailAddress(gmail)) {
+        setFieldError('lg-gmail', 'lg-gmail-err', 'Please enter a valid @gmail.com address.');
+        ok = false;
+      }
+
+      if (password.length < 4) {
+        setFieldError('lg-password', 'lg-password-err', 'Please enter your password (min 4 chars).');
+        ok = false;
+      }
+
+      if (!ok) {
+        showToast('Login Details Required', 'Enter a valid @gmail.com and password.', 'magenta');
+        return;
+      }
+
+      const users = loadAccountsList();
+      const found = users.find((u) => u.gmail === gmail);
+
+      if (found && found.password !== password) {
+        setFieldError('lg-password', 'lg-password-err', 'Password does not match this account.');
+        showToast('Wrong Password', 'Please enter the right password for this Gmail.', 'magenta');
+        return;
+      }
+
+      const resolvedName = found ? found.name : gmail.split('@')[0];
+      if (!found) {
+        users.push({ name: resolvedName, gmail, password });
+        saveAccountsList(users);
+      }
+
+      appState.account = { name: resolvedName, gmail };
+      persistSession();
+
+      pwdEl.value = '';
+      showPortal('portal-2a');
+      showToast('Logged In!', `Signed in as ${gmail} — YouTube Portal opened.`, 'cyan');
+    }
+
+    function toggleStepVerify(stepCode) {
+      const step = appState.steps[stepCode];
+      if (!step) return;
+
+      step.verified = !step.verified;
+      const warnBox = document.getElementById(`warn-${stepCode}`);
+      if (warnBox) warnBox.classList.add('hidden');
+
+      persistSession();
+      syncAllUI();
+      showToast(
+        step.verified ? 'Step Verified ✓' : 'Verification Cleared',
+        step.verified ? `Social task for ${stepCode.toUpperCase()} verified.` : `Social task for ${stepCode.toUpperCase()} unmarked.`,
+        step.verified ? 'cyan' : 'magenta'
+      );
+    }
+
+    function onQuizInput(stepCode) {
+      const step = appState.steps[stepCode];
+      const input = document.getElementById(`quiz-input-${stepCode}`);
+      if (!step || !input) return;
+
+      step.quizVal = input.value;
+      step.quizPassed = false;
+      persistSession();
+
+      const msg = document.getElementById(`quiz-msg-${stepCode}`);
+      if (msg) msg.classList.add('hidden');
+
+      syncAllUI();
+    }
+
+    function checkQuizAnswer(stepCode, expected) {
+      const step = appState.steps[stepCode];
+      const input = document.getElementById(`quiz-input-${stepCode}`);
+      const msg = document.getElementById(`quiz-msg-${stepCode}`);
+      const quizCard = document.getElementById(`card-${stepCode}-quiz`);
+      if (!step || !input || !msg) return;
+
+      const raw = input.value.trim();
+      step.quizVal = raw;
+
+      if (raw === '' || Number.isNaN(Number(raw))) {
+        step.quizPassed = false;
+        persistSession();
+        msg.textContent = '⚠️ Pehle sahi number likho aur Verify Quiz dabao.';
+        msg.className = 'text-xs font-semibold text-red-400';
+        msg.classList.remove('hidden');
+        triggerShake(quizCard);
+        syncAllUI();
+        return;
+      }
+
+      if (Number(raw) === expected) {
+        step.quizPassed = true;
+        const warnBox = document.getElementById(`warn-${stepCode}`);
+        if (warnBox) warnBox.classList.add('hidden');
+        persistSession();
+
+        msg.textContent = `✓ Sahi jawab (${expected})! Quiz verified.`;
+        msg.className = 'text-xs font-semibold text-emerald-300';
+        msg.classList.remove('hidden');
+
+        syncAllUI();
+        showToast('Quiz Correct ✓', `Answer ${expected} verified.`, 'cyan');
+      } else {
+        step.quizPassed = false;
+        persistSession();
+
+        msg.textContent = '✗ Galat jawab! Dobara calculate karke Verify Quiz dabao.';
+        msg.className = 'text-xs font-semibold text-red-400';
+        msg.classList.remove('hidden');
+
+        triggerShake(quizCard);
+        syncAllUI();
+        showToast('Wrong Answer', 'Quiz answer sahi nahi hai, dobara try karo.', 'magenta');
+      }
+    }
+
+    function goNextFrom(stepCode, nextPortalId) {
+      const step = appState.steps[stepCode];
+      const warnBox = document.getElementById(`warn-${stepCode}`);
+      const socialCard = document.getElementById(`card-${stepCode}-social`);
+      const quizCard = document.getElementById(`card-${stepCode}-quiz`);
+
+      const missingSocial = !step.verified;
+      const missingQuiz = !step.quizPassed;
+
+      if (missingSocial || missingQuiz) {
+        const missingList = [];
+        if (missingSocial) {
+          missingList.push('social step verify karo');
+          triggerShake(socialCard);
+        }
+        if (missingQuiz) {
+          missingList.push('quiz ka sahi jawab verify karo');
+          triggerShake(quizCard);
+        }
+
+        warnBox.innerHTML = `⚠️ Warning: Pehle <strong>${missingList.join(' aur ')}</strong>! Tabhi aage ka portal khulega.`;
+        warnBox.classList.remove('hidden');
+        triggerShake(warnBox);
+        showToast('Complete Required Tasks', 'Pehle dono tasks verify karo!', 'magenta');
+        return;
+      }
+
+      if (warnBox) warnBox.classList.add('hidden');
+      showPortal(nextPortalId);
+    }
+
+    function openYourLink() {
+      appState.linkVerified = true;
+      const warnBox = document.getElementById('warn-link');
+      if (warnBox) warnBox.classList.add('hidden');
+      persistSession();
+      syncAllUI();
+
+      try {
+        window.open(YOUR_LINK_URL, '_blank', 'noopener,noreferrer');
+      } catch (e) {
+        // Ignore popup restrictions
+      }
+
+      showToast('Your Link Opened & Verified ✓', 'Key Generator portal unlock ho gaya.', 'cyan');
+    }
+
+    function copyYourLink() {
+      const afterCopy = () => {
+        appState.linkVerified = true;
+        const warnBox = document.getElementById('warn-link');
+        if (warnBox) warnBox.classList.add('hidden');
+        persistSession();
+        syncAllUI();
+        showToast('Your Link Copied & Verified ✓', 'Link copied to clipboard.', 'cyan');
+      };
+
+      fallbackCopyText(YOUR_LINK_URL, afterCopy);
+    }
+
+    function verifyYourLink() {
+      appState.linkVerified = true;
+      const warnBox = document.getElementById('warn-link');
+      if (warnBox) warnBox.classList.add('hidden');
+      persistSession();
+      syncAllUI();
+      showToast('Your Link Verified ✓', 'You can now continue to Key Generator.', 'cyan');
+    }
+
+    function goNextFromLink() {
+      const warnBox = document.getElementById('warn-link');
+      const linkCard = document.getElementById('card-your-link');
+
+      if (!appState.linkVerified) {
+        warnBox.innerHTML = '⚠️ Warning: Pehle <strong>Open Link, Copy Link ya Verify Link</strong> dabao! Tabhi Key Generator khulega.';
+        warnBox.classList.remove('hidden');
+        triggerShake(linkCard);
+        showToast('Link Not Verified', 'Pehle Your Link verify karo!', 'magenta');
+        return;
+      }
+
+      if (warnBox) warnBox.classList.add('hidden');
+      showPortal('portal-key');
+    }
+
+    function generateExactKey() {
+      if (isKeyLoading) return;
+      isKeyLoading = true;
+
+      const genBtn = document.getElementById('btn-generate-key');
+      const copyBtn = document.getElementById('btn-copy-key');
+      const idleLbl = document.getElementById('key-idle-label');
+      const loadLbl = document.getElementById('key-loading-label');
+      const valLbl = document.getElementById('key-value-label');
+      const box = document.getElementById('key-output-box');
+
+      genBtn.disabled = true;
+      genBtn.classList.add('opacity-75', 'cursor-wait');
+      setCopyButtonState(false);
+
+      idleLbl.classList.add('hidden');
+      valLbl.classList.add('hidden');
+      loadLbl.classList.remove('hidden');
+      loadLbl.classList.add('flex');
+
+      if (keyTimer) clearTimeout(keyTimer);
+      keyTimer = setTimeout(() => {
+        loadLbl.classList.add('hidden');
+        loadLbl.classList.remove('flex');
+
+        valLbl.textContent = EXACT_KEY;
+        valLbl.classList.remove('hidden');
+
+        box.classList.remove('border-white/15', 'key-reveal');
+        void box.offsetWidth;
+        box.classList.add('border-neonCyan/60', 'shadow-[0_0_22px_rgba(0,245,212,0.2)]', 'key-reveal');
+
+        appState.keyReady = true;
+        persistSession();
+
+        isKeyLoading = false;
+        genBtn.disabled = false;
+        genBtn.classList.remove('opacity-75', 'cursor-wait');
+        setCopyButtonState(true);
+
+        showToast('Key Generated!', `${EXACT_KEY} is ready.`, 'cyan');
+      }, 1200);
+    }
+
+    function copyExactKey() {
+      if (!appState.keyReady) return;
+      fallbackCopyText(EXACT_KEY, () => {
+        showToast('Key Copied!', `${EXACT_KEY} copied to clipboard.`, 'cyan');
+      });
+    }
+
+    function fallbackCopyText(text, onSuccess) {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard
+          .writeText(text)
+          .then(onSuccess)
+          .catch(() => execCommandCopy(text, onSuccess));
+      } else {
+        execCommandCopy(text, onSuccess);
+      }
+    }
+
+    function execCommandCopy(text, onSuccess) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        onSuccess();
+      } catch (e) {
+        showToast('Copy Error', 'Could not copy automatically.', 'magenta');
+      }
+    }
+
+    /**
+     * Populates demo account & completes steps quickly for effortless testing.
+     */
+    function handleDemoQuickFill() {
+      if (!appState.account) {
+        appState.account = { name: 'R4J Demo User', gmail: 'demo.r4j@gmail.com' };
+      }
+
+      appState.steps['2a'] = { verified: true, quizPassed: true, quizVal: '43' };
+      appState.steps['2b'] = { verified: true, quizPassed: true, quizVal: '56' };
+      appState.steps['2c'] = { verified: true, quizPassed: true, quizVal: '33' };
+      appState.linkVerified = true;
+
+      persistSession();
+      showPortal('portal-key');
+      showToast('Demo Quick Fill Done!', 'All steps completed — Key Generator ready.', 'cyan');
+    }
+
+    function handleResetProgress() {
+      if (keyTimer) {
+        clearTimeout(keyTimer);
+        keyTimer = null;
+      }
+      isKeyLoading = false;
+
+      const currentAcc = appState.account ? { ...appState.account } : null;
+      appState = getDefaultState();
+      appState.account = currentAcc;
+
+      ['2a', '2b', '2c'].forEach((code) => {
+        const inp = document.getElementById(`quiz-input-${code}`);
+        if (inp) inp.value = '';
+        const msg = document.getElementById(`quiz-msg-${code}`);
+        if (msg) msg.classList.add('hidden');
+        const warn = document.getElementById(`warn-${code}`);
+        if (warn) warn.classList.add('hidden');
+      });
+      const linkWarn = document.getElementById('warn-link');
+      if (linkWarn) linkWarn.classList.add('hidden');
+
+      resetKeyOutputBox();
+      persistSession();
+      showPortal(currentAcc ? 'portal-2a' : 'portal-auth');
+      showToast('Progress Reset', 'Steps & key output reset.', 'cyan');
+    }
+
+    function handleSignOut() {
+      if (keyTimer) {
+        clearTimeout(keyTimer);
+        keyTimer = null;
+      }
+      isKeyLoading = false;
+
+      appState = getDefaultState();
+      safeRemove(STORAGE_KEY_SESSION);
+
+      ['2a', '2b', '2c'].forEach((code) => {
+        const inp = document.getElementById(`quiz-input-${code}`);
+        if (inp) inp.value = '';
+        const msg = document.getElementById(`quiz-msg-${code}`);
+        if (msg) msg.classList.add('hidden');
+        const warn = document.getElementById(`warn-${code}`);
+        if (warn) warn.classList.add('hidden');
+      });
+      const linkWarn = document.getElementById('warn-link');
+      if (linkWarn) linkWarn.classList.add('hidden');
+
+      resetKeyOutputBox();
+      showPortal('portal-auth');
+      showToast('Signed Out', 'Returned to Account portal.', 'cyan');
+    }
+
+    function resetKeyOutputBox() {
+      const idleLbl = document.getElementById('key-idle-label');
+      const loadLbl = document.getElementById('key-loading-label');
+      const valLbl = document.getElementById('key-value-label');
+      const box = document.getElementById('key-output-box');
+
+      if (idleLbl) idleLbl.classList.remove('hidden');
+      if (loadLbl) {
+        loadLbl.classList.add('hidden');
+        loadLbl.classList.remove('flex');
+      }
+      if (valLbl) valLbl.classList.add('hidden');
+      if (box) {
+        box.classList.remove('border-neonCyan/60', 'shadow-[0_0_22px_rgba(0,245,212,0.2)]', 'key-reveal');
+        box.classList.add('border-white/15');
+      }
+      setCopyButtonState(false);
+    }
+
+    function setCopyButtonState(enabled) {
+      const copyBtn = document.getElementById('btn-copy-key');
+      if (!copyBtn) return;
+      copyBtn.disabled = !enabled;
+      if (enabled) {
+        copyBtn.className =
+          'py-3.5 px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-white bg-gradient-to-r from-neonMagenta to-[#ff5e9e] hover:brightness-110 active:scale-[0.99] transition-all shadow-[0_0_22px_rgba(255,42,133,0.35)] flex items-center justify-center gap-2 cursor-pointer';
+      } else {
+        copyBtn.className =
+          'py-3.5 px-5 rounded-2xl font-display font-bold text-xs sm:text-sm tracking-wider uppercase text-white bg-white/5 border border-white/15 opacity-50 cursor-not-allowed transition-all flex items-center justify-center gap-2';
+      }
+    }
+
+    function syncStepCardUI(stepCode, verifiedLabel, unverifiedLabel) {
+      const step = appState.steps[stepCode];
+      const vBtn = document.getElementById(`verify-btn-${stepCode}`);
+      const sCard = document.getElementById(`card-${stepCode}-social`);
+      const qInput = document.getElementById(`quiz-input-${stepCode}`);
+      const qBadge = document.getElementById(`quiz-badge-${stepCode}`);
+      const statusBadge = document.getElementById(`status-badge-${stepCode}`);
+
+      if (vBtn) {
+        if (step.verified) {
+          vBtn.textContent = `${verifiedLabel} ✓`;
+          vBtn.className =
+            'px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all cursor-pointer bg-emerald-400/15 text-emerald-300 border-emerald-400/40';
+        } else {
+          vBtn.textContent = unverifiedLabel;
+          vBtn.className =
+            'px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all cursor-pointer bg-white/5 text-gray-300 border-white/15 hover:border-neonCyan/45';
+        }
+      }
+
+      if (sCard) {
+        sCard.classList.toggle('border-emerald-400/35', step.verified);
+        sCard.classList.toggle('border-white/10', !step.verified);
+      }
+
+      if (qInput && qInput.value !== step.quizVal) {
+        qInput.value = step.quizVal;
+      }
+
+      if (qBadge) {
+        if (step.quizPassed) {
+          qBadge.textContent = 'Verified ✓';
+          qBadge.className = 'text-xs font-bold text-emerald-300';
+        } else {
+          qBadge.textContent = 'Pending';
+          qBadge.className = 'text-xs font-semibold text-amber-300';
+        }
+      }
+
+      if (statusBadge) {
+        const doneCount = (step.verified ? 1 : 0) + (step.quizPassed ? 1 : 0);
+        statusBadge.textContent = `${doneCount}/2 Complete`;
+        if (doneCount === 2) {
+          statusBadge.className =
+            'px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-400/15 text-emerald-300 border border-emerald-400/40';
+        } else {
+          statusBadge.className =
+            'px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-400/35';
+        }
+      }
+    }
+
+    function syncAllUI() {
+      switchAuthTab(appState.authTab);
+
+      const statusText = document.getElementById('session-status-text');
+      const subtitle = document.getElementById('stage-subtitle');
+      const keyAccEmail = document.getElementById('key-account-email');
+
+      if (appState.account && appState.account.gmail) {
+        if (statusText) statusText.textContent = `Account: ${appState.account.gmail}`;
+        if (keyAccEmail) keyAccEmail.textContent = appState.account.gmail;
+      } else {
+        if (statusText) statusText.textContent = 'Guest Mode — Create Account or Login to start';
+        if (keyAccEmail) keyAccEmail.textContent = 'guest@gmail.com';
+      }
+
+      const subtitleMap = {
+        'portal-auth': '1. Account — Create Account or Login with Gmail',
+        'portal-2a': '2. YouTube + Quiz — Subscribe Channel & Solve Addition',
+        'portal-2b': '3. Telegram + Quiz — Join Channel & Solve Multiplication',
+        'portal-2c': '4. Instagram + Quiz — Follow Profile & Solve Mixed Quiz',
+        'portal-link': '5. Your Link — Open, Copy or Verify Destination Link',
+        'portal-key': '6. Key Generator — Generate & Copy [RAJ-MANNU-B4H-65]',
+      };
+      if (subtitle) subtitle.textContent = subtitleMap[appState.currentPortal] || subtitleMap['portal-auth'];
+
+      syncStepCardUI('2a', 'Verified', 'Verify Subscribe');
+      syncStepCardUI('2b', 'Verified', 'Verify Join');
+      syncStepCardUI('2c', 'Verified', 'Verify Follow');
+
+      const linkBadge = document.getElementById('status-badge-link');
+      const linkTag = document.getElementById('your-link-state-tag');
+      const linkCard = document.getElementById('card-your-link');
+      const linkDisp = document.getElementById('your-link-display');
+
+      if (linkDisp) linkDisp.textContent = YOUR_LINK_URL;
+      if (appState.linkVerified) {
+        if (linkBadge) {
+          linkBadge.textContent = 'Verified ✓';
+          linkBadge.className =
+            'px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-400/15 text-emerald-300 border border-emerald-400/40';
+        }
+        if (linkTag) {
+          linkTag.textContent = 'Verified ✓';
+          linkTag.className = 'text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-400/15 text-emerald-300 shrink-0';
+        }
+        if (linkCard) {
+          linkCard.classList.remove('border-white/10');
+          linkCard.classList.add('border-emerald-400/35');
+        }
+      } else {
+        if (linkBadge) {
+          linkBadge.textContent = 'Pending';
+          linkBadge.className =
+            'px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-300 border border-amber-400/35';
+        }
+        if (linkTag) {
+          linkTag.textContent = 'Unverified';
+          linkTag.className = 'text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-white/10 text-gray-300 shrink-0';
+        }
+        if (linkCard) {
+          linkCard.classList.remove('border-emerald-400/35');
+          linkCard.classList.add('border-white/10');
+        }
+      }
+
+      if (appState.keyReady) {
+        const idleLbl = document.getElementById('key-idle-label');
+        const loadLbl = document.getElementById('key-loading-label');
+        const valLbl = document.getElementById('key-value-label');
+        const box = document.getElementById('key-output-box');
+
+        if (idleLbl) idleLbl.classList.add('hidden');
+        if (loadLbl) {
+          loadLbl.classList.add('hidden');
+          loadLbl.classList.remove('flex');
+        }
+        if (valLbl) {
+          valLbl.textContent = EXACT_KEY;
+          valLbl.classList.remove('hidden');
+        }
+        if (box) box.classList.add('border-neonCyan/60', 'shadow-[0_0_22px_rgba(0,245,212,0.2)]');
+        setCopyButtonState(true);
+      } else if (!isKeyLoading) {
+        resetKeyOutputBox();
+      }
+
+      // Update 6-step pill states
+      const doneFlags = {
+        'portal-auth': Boolean(appState.account && appState.account.gmail),
+        'portal-2a': appState.steps['2a'].verified && appState.steps['2a'].quizPassed,
+        'portal-2b': appState.steps['2b'].verified && appState.steps['2b'].quizPassed,
+        'portal-2c': appState.steps['2c'].verified && appState.steps['2c'].quizPassed,
+        'portal-link': Boolean(appState.linkVerified),
+        'portal-key': Boolean(appState.keyReady),
+      };
+
+      PORTAL_IDS.forEach((pid) => {
+        const btn = document.getElementById(`pill-${pid}`);
+        const badge = document.getElementById(`pill-badge-${pid}`);
+        if (!btn || !badge) return;
+
+        const isActive = appState.currentPortal === pid;
+        const isDone = doneFlags[pid];
+        const unlocked = canAccessPortal(pid);
+
+        if (isActive) {
+          btn.className =
+            'py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center bg-neonCyan/15 border-neonCyan text-white shadow-[0_0_14px_rgba(0,245,212,0.22)]';
+          badge.textContent = 'Current';
+          badge.className = 'text-[9px] font-bold mt-0.5 text-neonCyan';
+        } else if (isDone) {
+          btn.className =
+            'py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center bg-emerald-400/10 border-emerald-400/40 text-emerald-200 hover:bg-emerald-400/15';
+          badge.textContent = 'Done ✓';
+          badge.className = 'text-[9px] font-bold mt-0.5 text-emerald-300';
+        } else if (unlocked) {
+          btn.className =
+            'py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center bg-white/5 border-white/15 text-gray-200 hover:border-neonCyan/40';
+          badge.textContent = 'Open';
+          badge.className = 'text-[9px] font-semibold mt-0.5 text-gray-300';
+        } else {
+          btn.className =
+            'py-2 px-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center bg-[#07090d]/60 border-white/5 text-gray-500 opacity-70';
+          badge.textContent = 'Locked';
+          badge.className = 'text-[9px] font-semibold mt-0.5 text-gray-500';
+        }
+      });
+    }
+
+    function triggerShake(el) {
+      if (!el) return;
+      el.classList.remove('shake-item');
+      void el.offsetWidth;
+      el.classList.add('shake-item');
+    }
+
+    function showToast(title, desc, accent = 'cyan') {
+      const toast = document.getElementById('toast');
+      const tTitle = document.getElementById('toast-title');
+      const tDesc = document.getElementById('toast-desc');
+      const iconWrap = document.getElementById('toast-icon-wrap');
+      const checkSvg = document.getElementById('toast-icon-check');
+      const warnSvg = document.getElementById('toast-icon-warn');
+
+      if (!toast || !tTitle || !tDesc) return;
+      tTitle.textContent = title;
+      tDesc.textContent = desc;
+
+      if (accent === 'magenta') {
+        iconWrap.className = 'w-8 h-8 rounded-xl bg-neonMagenta/15 border border-neonMagenta/40 text-neonMagenta flex items-center justify-center shrink-0';
+        checkSvg.classList.add('hidden');
+        warnSvg.classList.remove('hidden');
+      } else {
+        iconWrap.className = 'w-8 h-8 rounded-xl bg-neonCyan/15 border border-neonCyan/40 text-neonCyan flex items-center justify-center shrink-0';
+        checkSvg.classList.remove('hidden');
+        warnSvg.classList.add('hidden');
+      }
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 2800);
+    }
+
+    function initApp() {
+      hydrateSession();
+      showPortal(appState.currentPortal || 'portal-auth');
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
